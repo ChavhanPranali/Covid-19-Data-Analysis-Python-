@@ -1,0 +1,71 @@
+Covid_19_Data_Analysis Source Code
+# Importing Library Files
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+from plotly.subplots import make_subplots
+from datetime import datetime
+# Reading Dataset
+covid_df=pd.read_csv("C:/Users/naren/Desktop/covid data/covid_19_india.csv")
+# Dataset
+covid_df.head(100).style.background_gradient(cmap = "cubehelix")
+# Statistical Data from Dataset
+covid_df.describe().style.background_gradient(cmap = "cubehelix")
+# Cleaning Dataset
+covid_df.drop(["Sno","Time","ConfirmedIndianNational","ConfirmedForeignNational"], inplace = True,axis = 1)
+covid_df.head(100).style.background_gradient(cmap = "cubehelix")
+#Active Cases
+covid_df['Active_cases'] = covid_df['Confirmed'] - (covid_df['Cured'] + covid_df['Deaths'])
+covid_df.head(100).style.background_gradient(cmap = "cubehelix")
+# Recovery and Mortality Rate
+statewise=pd.pivot_table(covid_df,values=["Confirmed","Deaths","Cured"],index = "State/UnionTerritory",aggfunc = max)
+statewise["Recovery Rate"] = statewise["Cured"]*100/statewise["Confirmed"]
+statewise["Mortality Rate"] = statewise["Deaths"]*100/statewise["Confirmed"]
+statewise = statewise.sort_values(by = "Confirmed", ascending = False)
+statewise = statewise.sort_values(by = "Confirmed", ascending = False)
+statewise.style.background_gradient(cmap = "cubehelix")
+# Top 10 States with Active Cases
+top_10_active_states=covid_df.groupby(by='State/UnionTerritory').max()[['Active_cases','Date']].sort_values(by=['Active_cases'],ascending=False).reset_index()
+top_10_active_states.head(10).style.background_gradient(cmap = "cubehelix")
+# Barplot for Top 10 States with Active Cases
+fig = plt.figure(figsize=(16,9))
+plt.title("Top 10 states with most active cases in India",size = 25)
+ax = sns.barplot(data =top_10_active_states.iloc[:10], y= "Active_cases",x = "State/UnionTerritory")
+plt.xlabel("States")
+plt.ylabel("Total Active Cases")
+plt.show()
+# Piechart for Top 5 States of Active Cases
+import matplotlib.pyplot as plt
+%matplotlib inline
+states=['Maharashtra','Karnataka','Kerala','Tamil Nadu','Uttar Pradesh']
+active_cases=['701614','605515','445692','313048','310783']
+colors=['c','b','r','y','g']
+explode=[.08,.08,.08,.08,.08]
+plt.pie(active_cases,labels=states,colors=colors,explode=explode,autopct='%2.1f%%')
+plt.show()
+# Boxplot for Top 10 States of Active Cases
+sns.boxplot(top_10_active_states.head(10)['Active_cases'],top_10_active_states.head(10)['State/UnionTerritory']);
+# Top 10 States with Highest Deaths
+top_10_deaths=covid_df.groupby(by = 'State/UnionTerritory').max()[['Deaths','Date']].sort_values(by=['Deaths'],ascending = False).reset_index()
+top_10_deaths.head(10).style.background_gradient(cmap = "cubehelix")  
+# Barplot for Top 10 States with Highest Deaths
+fig = plt.figure(figsize=(18,5))
+plt.title("Top 10 states with most Deaths",size=25)      
+ax=sns.barplot(data=top_10_deaths.iloc[:10],y="Deaths",x="State/UnionTerritory",linewidth=2) 
+plt.xlabel("States")
+plt.ylabel("Total Death Cases")
+plt.show() 
+# Piechart for Top 5 States with Highest Deaths
+import matplotlib.pyplot as plt
+%matplotlib inline
+states=['Karnataka','Tamil Nadu','Delhi','Uttar Pradesh','Maharashtra']
+active_cases=['36848','34367','25068','22775','134201']
+colors=['c','b','r','y','g']
+explode=[.08,.08,.08,.08,.08]
+plt.pie(active_cases,labels=states,colors=colors,explode=explode,autopct='%2.1f%%')
+plt.show()
+
+# Boxplot for Top 10 States with most Deaths
+sns.boxplot(top_10_deaths.head(10)['Deaths'],top_10_deaths.head(10)['State/UnionTerritory']);             
